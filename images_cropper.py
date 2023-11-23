@@ -11,6 +11,12 @@ filelist =     [
 "D:/_SAR_town/3_vers/new_mask_class_5.BMP_part.JPG"
 ]
 
+psp_list=[
+"E:/_SAR_China/__Chendgu_fr1.tif.JPG._PSP",
+"E:/_SAR_China/__Chendgu_fr1.tif.JPG1._PSP",
+"E:/_SAR_China/__Chendgu_fr1.tif.JPG2._PSP"
+]
+
 class image_modifier:
     def __init__(self, ):
         self.filelist = []
@@ -70,6 +76,7 @@ class image_modifier:
         img_accumulated.save(filename + "_1log.JPG")
         img_accumulated.close()
         picture.close()
+
     def make_summ(self, f1, f2):
         picture = Image.open(f1)
         picture2 = Image.open(f2)
@@ -88,10 +95,54 @@ class image_modifier:
         picture.close()
         picture2.close()
 
+    def draw_psp_list(self, psp_list, dir,img_base):
+        for i in range(len(psp_list)):
+            t_color = ['blue', 'red', 'yellow', 'green', 'violet']
+            temple_file = Image.open(img_base)
+            colors = {}
+            curColor = ""
+            rect_flag = False
+
+            img = Image.new('RGB', temple_file.size, color=0)
+            draw = ImageDraw.Draw(img)
+            fp = open(psp_list[i])
+            print("all was opened")
+            for k, txt in enumerate(fp):
+                if k < 2:
+                    continue
+                zz, t = txt.split('=')
+                if t.find('Pline') >= 0:
+                    x2y = []
+                    rect_flag = False
+                    continue
+                if t.find('Rectangle') >= 0:
+                    x2y = []
+                    rect_flag = True
+                    continue
+                if t.find('Pen') >= 0:
+                    p = t.split(',')
+                    curColor = p[2]
+                    colors.update({p[2]: len(colors)})
+
+                t = t.split(' ')
+                if t[0] == '':
+                    if rect_flag:
+                        x2y.insert(1, (x2y[0][0], x2y[1][1]))
+                        x2y.append((x2y[2][0], x2y[0][1]))
+                        print(curColor)
+                    draw.polygon(x2y, outline=t_color[0], fill=t_color[0])
+                    continue
+                x2y.append((int(t[0]), int(t[1])))
+            print("masks were drawen")
+            img.save(dir + "new_mask_class_" + str(i) + ".BMP")
+            img.close()
+            fp.close()
+
 mod = image_modifier()
-mod.set_filelist(filelist)
+#.set_filelist(filelist)
 #mod.crop_same_part(0,0,1369, 689)
-#mod.make_one_color("E:/_SAR_town/__SUMM_RGB.TIF-JSON.BMP_crop.JPG_part.JPG")
+#mod.make_one_color("E:/__SAR_ship2/P0119_2400_3200_6000_6800_instance_color_RGB.png")
 #mod.make_square("E:/_SAR_town/__SAR_HH.TIF_crop.JPG_part.JPG")
 #mod.make_log("E:/_SAR_town/__SAR_HH.TIF_crop.JPG_part.JPG")
-mod.make_summ(filelist[2], filelist[5])
+#mod.make_summ(filelist[2], filelist[5])
+mod.draw_psp_list(psp_list, "E:/_SAR_China/","E:/_SAR_China/__Chendgu_fr1.tif.JPG")
