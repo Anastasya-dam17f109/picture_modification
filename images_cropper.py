@@ -3,12 +3,12 @@ import numpy as np
 import math
 
 filelist =     [
-"E:/_SAR_town/__SAR_HH.TIF_crop.JPG",
-"E:/_SAR_town/new_mask_class_0.BMP",
-"E:/_SAR_town/__SUMM_RGB.TIF-JSON.BMP_crop.JPG",
-"E:/_SAR_town/new_mask_class_5.BMP",
-"E:/_SAR_town/new_mask_class_3.BMP",
-"E:/_SAR_town/new_mask_class_4.BMP",
+"D:/_SAR_town/3_vers/__SUMM_RGB.TIF-JSON.BMP_crop.JPG_part.JPG_1c.JPG",
+"D:/_SAR_town/3_vers/new_mask_class_0.BMP_part.JPG",
+"D:/_SAR_town/3_vers/new_mask_class_3.BMP_part.JPG",
+"D:/_SAR_town/3_vers/new_mask_class_4.BMP_part.JPG",
+"D:/_SAR_town/3_vers/__SAR_HH.TIF_crop.JPG_part.JPG",
+"D:/_SAR_town/3_vers/new_mask_class_5.BMP_part.JPG"
 ]
 
 class image_modifier:
@@ -70,11 +70,28 @@ class image_modifier:
         img_accumulated.save(filename + "_1log.JPG")
         img_accumulated.close()
         picture.close()
+    def make_summ(self, f1, f2):
+        picture = Image.open(f1)
+        picture2 = Image.open(f2)
+        width_p, height_p = picture.size
+        img_accumulated = Image.new('RGB', (width_p, height_p), color=0)
+        mass = np.array(picture, dtype="float32")
+        mass2 = np.array(picture2, dtype="float32")
+        mass = mass + mass2
+        print(mass.shape, width_p, height_p)
+        for i in range(height_p):
+            for j in range(width_p):
 
+                img_accumulated.putpixel((j, i), (int(mass[i, j, 0]), int(mass[i, j, 1]), int(mass[i, j, 2])))
+        img_accumulated.save(f1 + "_sum.JPG")
+        img_accumulated.close()
+        picture.close()
+        picture2.close()
 
 mod = image_modifier()
-#mod.set_filelist(filelist)
-#mod.crop_same_part(0,212,2197, 901)
+mod.set_filelist(filelist)
+#mod.crop_same_part(0,0,1369, 689)
 #mod.make_one_color("E:/_SAR_town/__SUMM_RGB.TIF-JSON.BMP_crop.JPG_part.JPG")
-mod.make_square("E:/_SAR_town/__SAR_HH.TIF_crop.JPG_part.JPG")
+#mod.make_square("E:/_SAR_town/__SAR_HH.TIF_crop.JPG_part.JPG")
 #mod.make_log("E:/_SAR_town/__SAR_HH.TIF_crop.JPG_part.JPG")
+mod.make_summ(filelist[2], filelist[5])
