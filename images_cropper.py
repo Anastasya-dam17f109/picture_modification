@@ -3,18 +3,16 @@ import numpy as np
 import math
 
 filelist =     [
-"D:/_SAR_town/3_vers/__SUMM_RGB.TIF-JSON.BMP_crop.JPG_part.JPG_1c.JPG",
-"D:/_SAR_town/3_vers/new_mask_class_0.BMP_part.JPG",
-"D:/_SAR_town/3_vers/new_mask_class_3.BMP_part.JPG",
-"D:/_SAR_town/3_vers/new_mask_class_4.BMP_part.JPG",
-"D:/_SAR_town/3_vers/__SAR_HH.TIF_crop.JPG_part.JPG",
-"D:/_SAR_town/3_vers/new_mask_class_5.BMP_part.JPG"
+"C:/Users/ADostovalova/Downloads/q04indrex0401x2_t04_oceanmouth.jpeg_2_0channel.JPG"
 ]
 
 psp_list=[
-"E:/_SAR_China/__Chendgu_fr1.tif.JPG._PSP",
-"E:/_SAR_China/__Chendgu_fr1.tif.JPG1._PSP",
-"E:/_SAR_China/__Chendgu_fr1.tif.JPG2._PSP"
+"E:/_SAR_kalimantan/q04indrex0401x2_t04_oceanmouth.jpeg_2_0channel.JPG_part.JPG4._PSP",
+"E:/_SAR_kalimantan/q04indrex0401x2_t04_oceanmouth.jpeg_2_0channel.JPG_part.JPG5._PSP",
+"E:/_SAR_kalimantan/q04indrex0401x2_t04_oceanmouth.jpeg_2_0channel.JPG_part.JPG._PSP",
+"E:/_SAR_kalimantan/q04indrex0401x2_t04_oceanmouth.jpeg_2_0channel.JPG_part.JPG1._PSP",
+"E:/_SAR_kalimantan/q04indrex0401x2_t04_oceanmouth.jpeg_2_0channel.JPG_part.JPG2._PSP",
+"E:/_SAR_kalimantan/q04indrex0401x2_t04_oceanmouth.jpeg_2_0channel.JPG_part.JPG3._PSP"
 ]
 
 class image_modifier:
@@ -138,11 +136,48 @@ class image_modifier:
             img.close()
             fp.close()
 
+    def make_one_channel(self, filename):
+        picture = Image.open(filename)
+        width_p, height_p = picture.size
+        img_accumulated = Image.new('RGB', (width_p, height_p), color=0)
+        mass = np.array(picture, dtype="float32")
+        print(mass.shape, width_p, height_p)
+        ch_num = 2
+        for i in range(height_p):
+            for j in range(width_p):
+
+                # print(mass[i, j])
+                img_accumulated.putpixel((j, i), (int(mass[i, j, ch_num]), int(mass[i, j, ch_num]), int(mass[i, j, ch_num])))
+        img_accumulated.save(filename + "_" + str(ch_num) + "channel.JPG")
+        img_accumulated.close()
+        picture.close()
+
+    def make_one_channel_as_summ(self, filename):
+        picture = Image.open(filename)
+        width_p, height_p = picture.size
+        img_accumulated = Image.new('RGB', (width_p, height_p), color=0)
+        mass = np.array(picture, dtype="float32")
+        print(mass.shape, width_p, height_p)
+        ch_num1 = 2
+        ch_num2 = 0
+        ch_num3 = 0
+        for i in range(height_p):
+            for j in range(width_p):
+                color = int( 0.33*(mass[i, j, ch_num1] + mass[i, j, ch_num2]+mass[i, j, ch_num3]))
+                img_accumulated.putpixel((j, i),
+                                         (color, color, color))
+        img_accumulated.save(filename + "_" + str(ch_num1) + "_" + str(ch_num2) +  "_" + str(ch_num3) +"channel.JPG")
+        img_accumulated.close()
+        picture.close()
+
+
 mod = image_modifier()
-#.set_filelist(filelist)
-#mod.crop_same_part(0,0,1369, 689)
+mod.set_filelist(filelist)
+#mod.crop_same_part(0,0,2866, 860)
 #mod.make_one_color("E:/__SAR_ship2/P0119_2400_3200_6000_6800_instance_color_RGB.png")
 #mod.make_square("E:/_SAR_town/__SAR_HH.TIF_crop.JPG_part.JPG")
 #mod.make_log("E:/_SAR_town/__SAR_HH.TIF_crop.JPG_part.JPG")
 #mod.make_summ(filelist[2], filelist[5])
-mod.draw_psp_list(psp_list, "E:/_SAR_China/","E:/_SAR_China/__Chendgu_fr1.tif.JPG")
+mod.draw_psp_list(psp_list, "E:/_SAR_kalimantan/","E:/_SAR_kalimantan/q04indrex0401x2_t04_oceanmouth.jpeg_2_0channel.JPG_part.JPG")
+#mod.make_one_channel("C:/Users/ADostovalova/Downloads/q04indrex0401x2_t04_oceanmouth.jpeg")
+#mod.make_one_channel_as_summ("C:/Users/ADostovalova/Downloads/q04indrex0401x2_t04_oceanmouth.jpeg")
