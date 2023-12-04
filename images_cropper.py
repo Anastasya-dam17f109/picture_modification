@@ -3,16 +3,15 @@ import numpy as np
 import math
 
 filelist =     [
-"C:/Users/ADostovalova/Downloads/q04indrex0401x2_t04_oceanmouth.jpeg_2_0channel.JPG"
+"D:/_SAR_kalimantan/q04indrex0401x2_t04_oceanmouth.jpeg_2_0channel.JPG_part.JPG"
 ]
 
 psp_list=[
-"E:/_SAR_kalimantan/q04indrex0401x2_t04_oceanmouth.jpeg_2_0channel.JPG_part.JPG4._PSP",
-"E:/_SAR_kalimantan/q04indrex0401x2_t04_oceanmouth.jpeg_2_0channel.JPG_part.JPG5._PSP",
-"E:/_SAR_kalimantan/q04indrex0401x2_t04_oceanmouth.jpeg_2_0channel.JPG_part.JPG._PSP",
-"E:/_SAR_kalimantan/q04indrex0401x2_t04_oceanmouth.jpeg_2_0channel.JPG_part.JPG1._PSP",
-"E:/_SAR_kalimantan/q04indrex0401x2_t04_oceanmouth.jpeg_2_0channel.JPG_part.JPG2._PSP",
-"E:/_SAR_kalimantan/q04indrex0401x2_t04_oceanmouth.jpeg_2_0channel.JPG_part.JPG3._PSP"
+"D:/__SAR_ship2/P0119_2400_3200_6000_6800.png5._PSP",
+
+"D:/__SAR_ship2/P0119_2400_3200_6000_6800.png2._PSP",
+"D:/__SAR_ship2/P0119_2400_3200_6000_6800.png3._PSP",
+"D:/__SAR_ship2/P0119_2400_3200_6000_6800.png1._PSP"
 ]
 
 class image_modifier:
@@ -170,6 +169,62 @@ class image_modifier:
         img_accumulated.close()
         picture.close()
 
+    def draw_psp_list_contours(self, psp_list, dir,img_base):
+        temple_file = Image.open(img_base)
+        width_p, height_p = temple_file .size
+        #mass = np.array(temple_file)
+        #img = Image.new('RGB', temple_file.size, color=0)
+        '''
+        for i in range(height_p):
+            for j in range(width_p):
+
+                # print(mass[i, j])
+                img.putpixel((j, i), (mass[i, j], mass[i, j], mass[i, j]))
+        '''
+        img = temple_file
+        draw = ImageDraw.Draw(img)
+
+        for i in range(len(psp_list)):
+            t_color = ['blue', 'red','violet','green','yellow']
+
+            colors = {}
+            curColor = ""
+            rect_flag = False
+
+            #img = Image.new('RGB', temple_file.size, color=0)
+
+            fp = open(psp_list[i])
+            print("all was opened")
+            for k, txt in enumerate(fp):
+                if k < 2:
+                    continue
+                zz, t = txt.split('=')
+                if t.find('Pline') >= 0:
+                    x2y = []
+                    rect_flag = False
+                    continue
+                if t.find('Rectangle') >= 0:
+                    x2y = []
+                    rect_flag = True
+                    continue
+                if t.find('Pen') >= 0:
+                    p = t.split(',')
+                    curColor = p[2]
+                    colors.update({p[2]: len(colors)})
+
+                t = t.split(' ')
+                if t[0] == '':
+                    if rect_flag:
+                        x2y.insert(1, (x2y[0][0], x2y[1][1]))
+                        x2y.append((x2y[2][0], x2y[0][1]))
+                        print(curColor)
+                    draw.polygon(x2y, outline=t_color[i],width=6 )
+                    continue
+                x2y.append((int(t[0]), int(t[1])))
+            print("contours were drawen")
+        img.save(dir + "new_contours_" + str(i) + ".BMP")
+        img.close()
+        fp.close()
 
 mod = image_modifier()
 mod.set_filelist(filelist)
@@ -178,6 +233,6 @@ mod.set_filelist(filelist)
 #mod.make_square("E:/_SAR_town/__SAR_HH.TIF_crop.JPG_part.JPG")
 #mod.make_log("E:/_SAR_town/__SAR_HH.TIF_crop.JPG_part.JPG")
 #mod.make_summ(filelist[2], filelist[5])
-mod.draw_psp_list(psp_list, "E:/_SAR_kalimantan/","E:/_SAR_kalimantan/q04indrex0401x2_t04_oceanmouth.jpeg_2_0channel.JPG_part.JPG")
+mod.draw_psp_list_contours(psp_list, "D:/__SAR_ship2/","D:/__SAR_ship2/P0119_2400_3200_6000_6800.pngCNT.JPG")
 #mod.make_one_channel("C:/Users/ADostovalova/Downloads/q04indrex0401x2_t04_oceanmouth.jpeg")
 #mod.make_one_channel_as_summ("C:/Users/ADostovalova/Downloads/q04indrex0401x2_t04_oceanmouth.jpeg")
