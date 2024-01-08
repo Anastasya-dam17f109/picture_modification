@@ -3,15 +3,11 @@ import numpy as np
 import math
 
 filelist =     [
-"D:/_SAR_kalimantan/q04indrex0401x2_t04_oceanmouth.jpeg_2_0channel.JPG_part.JPG"
+"D:/image_data/__FR1_modified.jpg"
 ]
 
 psp_list=[
-"D:/__SAR_ship2/P0119_2400_3200_6000_6800.png5._PSP",
-
-"D:/__SAR_ship2/P0119_2400_3200_6000_6800.png2._PSP",
-"D:/__SAR_ship2/P0119_2400_3200_6000_6800.png3._PSP",
-"D:/__SAR_ship2/P0119_2400_3200_6000_6800.png1._PSP"
+"D:/image_data/__FR1_modified.jpg._PSP"
 ]
 
 class image_modifier:
@@ -119,7 +115,8 @@ class image_modifier:
                 if t.find('Pen') >= 0:
                     p = t.split(',')
                     curColor = p[2]
-                    colors.update({p[2]: len(colors)})
+                    if p[2] not in colors:
+                        colors.update({p[2]: len(colors)})
 
                 t = t.split(' ')
                 if t[0] == '':
@@ -127,11 +124,11 @@ class image_modifier:
                         x2y.insert(1, (x2y[0][0], x2y[1][1]))
                         x2y.append((x2y[2][0], x2y[0][1]))
                         print(curColor)
-                    draw.polygon(x2y, outline=t_color[0], fill=t_color[0])
+                    draw.polygon(x2y, outline=t_color[colors.get(curColor)], fill=t_color[colors.get(curColor)])
                     continue
                 x2y.append((int(t[0]), int(t[1])))
             print("masks were drawen")
-            img.save(dir + "new_mask_class_" + str(i) + ".BMP")
+            img.save(dir + "new_mask_class_lbl_" + str(i) + ".BMP")
             img.close()
             fp.close()
 
@@ -228,11 +225,13 @@ class image_modifier:
 
 mod = image_modifier()
 mod.set_filelist(filelist)
+
+#mod.make_one_channel("C:/Users/Anastasya/Downloads/q04indrex0401x2_t04_oceanmouth.jpg")
 #mod.crop_same_part(0,0,2866, 860)
 #mod.make_one_color("E:/__SAR_ship2/P0119_2400_3200_6000_6800_instance_color_RGB.png")
 #mod.make_square("E:/_SAR_town/__SAR_HH.TIF_crop.JPG_part.JPG")
 #mod.make_log("E:/_SAR_town/__SAR_HH.TIF_crop.JPG_part.JPG")
 #mod.make_summ(filelist[2], filelist[5])
-mod.draw_psp_list_contours(psp_list, "D:/__SAR_ship2/","D:/__SAR_ship2/P0119_2400_3200_6000_6800.pngCNT.JPG")
+mod.draw_psp_list(psp_list, "D:/image_data/","D:/image_data/__FR1_modified.jpg")
 #mod.make_one_channel("C:/Users/ADostovalova/Downloads/q04indrex0401x2_t04_oceanmouth.jpeg")
 #mod.make_one_channel_as_summ("C:/Users/ADostovalova/Downloads/q04indrex0401x2_t04_oceanmouth.jpeg")
